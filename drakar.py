@@ -10,24 +10,34 @@ DRAKAR_PATH = os.environ.get('DRAKAR', '/mnt/drakar')
 if not isdir(DRAKAR_PATH):
     raise OSError("No such directory: '{}'".format(DRAKAR_PATH))
 
-SYSTEM = sys.platform + '-' + platform.machine()
+PLATFORM = sys.platform + '-' + platform.machine()
 
 sources = {
     'processing': {
         'linux2-x86_64': {
             'filename': 'processing-2.1-linux64.tgz', 
             'url': 'http://download.processing.org/processing-2.1-linux64.tgz',
-            }
-        }
+            },
+        },
+    'python3.3': {
+        'any': {
+            'filename': 'Python-3.3.3.tgz',
+            'url': 'http://python.org/ftp/python/3.3.3/Python-3.3.3.tgz',
+            },
+        },
     }
 
 
 def get_archive(cutename):
     
-    filename = sources[cutename][SYSTEM]['filename']
+    # Handling multi-platform sources:
+    if 'any' in sources[cutename]:
+        PLATFORM = 'any'
+        
+    filename = sources[cutename][PLATFORM]['filename']
     # => filename-linux64.foo
     
-    archives_path = join(DRAKAR_PATH, 'archives', SYSTEM)
+    archives_path = join(DRAKAR_PATH, 'archives', PLATFORM)
     # => /mnt/drakar/archives/linux2-x86_64
     
     file_path = join(archives_path, filename)
@@ -35,7 +45,7 @@ def get_archive(cutename):
     
     if not isfile(file_path):
         here = os.getcwd()
-        source = sources[cutename][SYSTEM][url]
+        source = sources[cutename][PLATFORM]['url']
         
         os.makedirs(archives_path)
         os.chdir(archives_path)
